@@ -1,0 +1,3 @@
+To compile on Linux:
+
+c++ -o get_geom get_geom.cpp

@@ -1,0 +1,38 @@
+
+add              auth  scxhpi11 \
+         -remote  10.195.172.84/32 \
+      -preshared  my_scxhpi8_scxhpi11_key \
+       -exchange  MM \
+
+add               ike  scxhpi11 \
+         -remote  10.195.172.84/32 \
+       -priority  10 \
+ -authentication  PSK \
+          -group  2 \
+           -hash  SHA1 \
+     -encryption  3DES \
+           -life  28800 \
+          -maxqm  100 \
+
+add           gateway  default \
+         -action  FORWARD \
+
+add              host  telnet_to_scxhpi11 \
+         -source  10.195.172.81/32/0 \
+    -destination  10.195.172.84/32/23 \
+       -protocol  6 \
+       -priority  10 \
+         -action  ESP_AES128_HMAC_SHA1/28800/0 \
+          -flags  NONE \
+
+add              host  telnet_from_scxhpi11 \
+         -source  10.195.172.81/32/23 \
+    -destination  10.195.172.84/32/0 \
+       -protocol  6 \
+       -priority  20 \
+         -action  ESP_AES128_HMAC_SHA1/28800/0 \
+          -flags  NONE \
+
+add              host  default \
+         -action  PASS \
+

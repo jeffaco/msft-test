@@ -1,0 +1,5 @@
+John Kordich (Prithvi Catalytic Inc)
+1:22 PM
+So this test program should print "0" but it prints "4".  If you comment out the "int i = -1;" line, it will print "0" 
+At least on scxdev-sparc11-01, that's the behavior
+If you change "char c" to an unsigned char, it prints 0 with or without the int i = -1 commented out.

@@ -1,0 +1,23 @@
+jeffcof@scxcrd-sle10-03:~> ~/params.sh "foo \"bar\"" "\"bar\" foo"
+Parameters specified: 2
+1: foo "bar"
+2: "bar" foo
+jeffcof@scxcrd-sle10-03:~>
+
+jeffcof@scxcrd-sle10-03:~> sh -c "~/params.sh \"foo \\\"bar\\\"\" \"\\\"bar\\\" foo\""
+Parameters specified: 2
+1: foo "bar"
+2: "bar" foo
+jeffcof@scxcrd-sle10-03:~> 
+
+jeffcof@scxcrd-sle10-03:~> su -c "/home/jeffcof/params.sh \"foo \\\"bar\\\"\" \"\\\"bar\\\" foo\""
+Password: 
+Parameters specified: 2
+1: foo "bar"
+2: "bar" foo
+jeffcof@scxcrd-sle10-03:~> 
+
+
+Rules:
+
+1) We can quote with whatever type of quote was NOT used in command

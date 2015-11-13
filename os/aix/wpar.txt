@@ -1,0 +1,1 @@
+mkwpar -l -r -s -M vfs=directory directory=/var -M vfs=directory directory=/tmp -M vfs=directory directory=/home -M vfs=directory directory=/usr -M vfs=directory directory=/opt -n scxaix3-wpar

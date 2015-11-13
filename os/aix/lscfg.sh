@@ -1,0 +1,1 @@
+lscfg -vl hdisk2

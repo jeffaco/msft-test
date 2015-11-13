@@ -1,0 +1,16 @@
+# Create file /tmp/wget-continue to run continuously (otherwise just runs once)
+
+OUTFILE=/tmp/index_$$.html
+
+while (true); do
+    wget -q jeffcof64-rhel6-01.scx.com --header="Host: jeffcof64-rhel6-01.scx.com" -O $OUTFILE; cat $OUTFILE; rm $OUTFILE; echo
+    wget -q jeffcof64-rhel6-01.scx.com --header="Host: xyzzy.com" -O $OUTFILE; cat $OUTFILE; rm $OUTFILE; echo
+    wget -q jeffcof64-rhel6-01.scx.com --header="Host: abcde.com" -O $OUTFILE; cat $OUTFILE; rm $OUTFILE; echo
+
+    wget -q jeffcof64-rhel6-01.scx.com --header="Host: jeffcof64-host1.scx.com" -O $OUTFILE; cat $OUTFILE; rm $OUTFILE; echo
+    wget -q jeffcof64-rhel6-01.scx.com --header="Host: jeffcof64-host1.scx.com" -O $OUTFILE; cat $OUTFILE; rm $OUTFILE; echo
+
+    wget -q jeffcof64-rhel6-01.scx.com --header="Host: jeffcof64-host2.scx.com" -O $OUTFILE; cat $OUTFILE; rm $OUTFILE; echo
+
+    [ -e /tmp/wget-continue ] || break
+done
