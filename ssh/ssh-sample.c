@@ -30,18 +30,18 @@
 #define INADDR_NONE (in_addr_t)-1
 #endif
 
-const char *keyfile1 = "/home/jeffcof/.ssh/id_dsa.pub";
-const char *keyfile2 = "/home/jeffcof/.ssh/id_dsa";
+const char *keyfile1 = "/home/jeffcof/.ssh/id_rsa.pub";
+const char *keyfile2 = "/home/jeffcof/.ssh/id_rsa";
 const char *username = "jeffcof";
 const char *password = "";
 
-const char *server_ip = "10.123.174.81";
+const char *server_ip = "10.185.82.159";
 
 const char *local_listenip = "127.0.0.1";
 unsigned int local_listenport = 8091;
 
 const char *remote_desthost = "localhost"; /* resolved by the server */
-unsigned int remote_destport = 8090;
+unsigned int remote_destport = 5500;  // ** OMI SERVER HTTP LISTENING PORT, NOT HTTPS **
 
 enum {
     AUTH_NONE = 0,
@@ -189,61 +189,6 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-/*
-    listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-#ifdef WIN32
-    if (listensock == INVALID_SOCKET) {
-        fprintf(stderr, "failed to open listen socket!\n");
-        return -1;
-    }
-#else
-    if (listensock == -1) {
-        perror("socket");
-        return -1;
-    }
-#endif
-
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(local_listenport);
-    if (INADDR_NONE == (sin.sin_addr.s_addr = inet_addr(local_listenip))) {
-        perror("inet_addr");
-        goto shutdown;
-    }
-    sockopt = 1;
-    setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
-    sinlen=sizeof(sin);
-    if (-1 == bind(listensock, (struct sockaddr *)&sin, sinlen)) {
-        perror("bind");
-        goto shutdown;
-    }
-    if (-1 == listen(listensock, 2)) {
-        perror("listen");
-        goto shutdown;
-    }
-
-    fprintf(stderr, "Waiting for TCP connection on %s:%d...\n",
-        inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
-
-    forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
-#ifdef WIN32
-    if (forwardsock == INVALID_SOCKET) {
-        fprintf(stderr, "failed to accept forward socket!\n");
-        goto shutdown;
-    }
-#else
-    if (forwardsock == -1) {
-        perror("accept");
-        goto shutdown;
-    }
-#endif
-
-    shost = inet_ntoa(sin.sin_addr);
-    sport = ntohs(sin.sin_port);
-
-    fprintf(stderr, "Forwarding connection from %s:%d here to remote %s:%d\n",
-        shost, sport, remote_desthost, remote_destport);
-
-*/
 //    channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
 //        remote_destport, shost, sport);
 
@@ -259,46 +204,56 @@ int main(int argc, char *argv[])
     /* Must use non-blocking IO hereafter due to the current libssh2 API */
     libssh2_session_set_blocking(session, 0);
 
-    while (1) {
-/*
-        FD_ZERO(&fds);
-        FD_SET(forwardsock, &fds);
-        tv.tv_sec = 0;
-        tv.tv_usec = 100000;
-        rc = select(forwardsock + 1, &fds, NULL, NULL, &tv);
-        if (-1 == rc) {
-            perror("select");
-            goto shutdown;
-        }
-        if (rc && FD_ISSET(forwardsock, &fds)) {
-            len = recv(forwardsock, buf, sizeof(buf), 0);
-            if (len < 0) {
-                perror("read");
-                goto shutdown;
-            } else if (0 == len) {
-                fprintf(stderr, "The client at %s:%d disconnected!\n", shost,
-                    sport);
+    // Initial string to transmit to server
+    {
+        const char *xmlData = "<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:wsmid=\"http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd\"><s:Header/><s:Body><wsmid:Identify/></s:Body></s:Envelope>";
+
+        sprintf(buf,
+                "POST /wsman HTTP/1.1\r\n"
+                "Content-Type: application/soap+xml;charset=UTF-8\r\n"
+                "User-Agent: Microsoft WinRM Client\r\n"
+                "Host: localhost:7778\r\n"
+                "Content-Length: %d\r\n"
+                "Authorization: auth\r\n"
+                "\r\n"
+                "%s", strlen(xmlData), xmlData);
+        len = strlen(buf);
+        printf("Transmitting query request to server on port %d ...\n", remote_destport);
+    }
+
+//  while (1)
+    {
+        int counter = 0;
+        wr = 0;
+        while(wr < len) {
+            printf("  Sending %d bytes to server ...\n", len-wr);
+
+            i = libssh2_channel_write(channel, buf + wr, len - wr);
+            if (LIBSSH2_ERROR_EAGAIN == i) {
+                continue;
+            }
+            if (i < 0) {
+                fprintf(stderr, "libssh2_channel_write: %d\n", i);
                 goto shutdown;
             }
-            wr = 0;
-            while(wr < len) {
-                i = libssh2_channel_write(channel, buf + wr, len - wr);
-                if (LIBSSH2_ERROR_EAGAIN == i) {
-                    continue;
-                }
-                if (i < 0) {
-                    fprintf(stderr, "libssh2_channel_write: %d\n", i);
-                    goto shutdown;
-                }
-                wr += i;
-            }
+            printf("    (Bytes written: %d)\n", i);
+            wr += i;
         }
-*/
-        while (1) {
+        len = 0;
+
+        printf("  Reading response from server ...\n");
+
+        while (counter < 5) {
             char wbuffer[1024];
+
+            counter++;
+            sleep(1);
+
             len = libssh2_channel_read(channel, buf, sizeof(buf));
-            if (LIBSSH2_ERROR_EAGAIN == len)
-                break;
+            if (LIBSSH2_ERROR_EAGAIN == len) {
+                printf("libssh2_channel_read says LIBSSH2_ERROR_EAGAIN ...\n");
+                continue;
+            }
             else if (len < 0) {
                 fprintf(stderr, "libssh2_channel_read: %d", (int)len);
                 goto shutdown;
@@ -306,17 +261,7 @@ int main(int argc, char *argv[])
             memcpy(wbuffer, buf, len);
             wbuffer[len] = '\0';
             printf("%s", wbuffer);
-/*
-            wr = 0;
-            while (wr < len) {
-                i = send(forwardsock, buf + wr, len - wr, 0);
-                if (i <= 0) {
-                    perror("write");
-                    goto shutdown;
-                }
-                wr += i;
-            }
-*/
+
             if (libssh2_channel_eof(channel)) {
                 fprintf(stderr, "The server at %s:%d disconnected!\n",
                     remote_desthost, remote_destport);
