@@ -35,6 +35,8 @@ const char *keyfile2 = "/home/jeffcof/.ssh/id_rsa";
 const char *username = "jeffcof";
 const char *password = "";
 
+const int USEC_IN_SECOND = 1000000;
+
 const char *server_ip = "10.185.82.159";
 
 const char *local_listenip = "127.0.0.1";
@@ -214,7 +216,7 @@ int main(int argc, char *argv[])
                 "User-Agent: Microsoft WinRM Client\r\n"
                 "Host: localhost:7778\r\n"
                 "Content-Length: %d\r\n"
-                "Authorization: auth\r\n"
+                "Authorization: Basic c2N4dXNlcjpzY3h1c2Vy\r\n" /* "scxuser:scxuser" */
                 "\r\n"
                 "%s", strlen(xmlData), xmlData);
         len = strlen(buf);
@@ -247,7 +249,10 @@ int main(int argc, char *argv[])
             char wbuffer[1024];
 
             counter++;
-            sleep(1);
+
+            /* Sleep for 1/10th of a second; give time for OMI to respond */
+            /* More intelligence in protocol will allow this to be optimized */
+            usleep(USEC_IN_SECOND / 10);
 
             len = libssh2_channel_read(channel, buf, sizeof(buf));
             if (LIBSSH2_ERROR_EAGAIN == len) {
@@ -267,6 +272,11 @@ int main(int argc, char *argv[])
                     remote_desthost, remote_destport);
                 goto shutdown;
             }
+
+            // In general, once we get a response, we're done
+            // (Server doesn't apepar to split responses in the channel)
+            // Again, more intelligence in protocol would help here ...
+            break;
         }
     }
 
