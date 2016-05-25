@@ -220,6 +220,7 @@ int main(int argc, char *argv[])
                 "\r\n"
                 "%s", strlen(xmlData), xmlData);
         len = strlen(buf);
+        printf("\nBuffer to transmit:\n\n%s\n\n", buf);
         printf("Transmitting query request to server on port %d ...\n", remote_destport);
     }
 
