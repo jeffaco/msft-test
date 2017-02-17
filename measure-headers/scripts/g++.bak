@@ -1,0 +1,22 @@
+#!/bin/bash
+
+lastcopt=0
+
+# Look for '-c' option:
+for i
+do
+    if [ "$lastcopt" == "1" ]; then
+        cppfile=$i
+        lastcopt=0
+    fi
+    if [ "$i" == "-c" ]; then
+        copt=1
+        lastcopt=1
+    fi
+done
+
+if [ "$copt" == "1" ]; then
+    /usr/bin/g++ -include all.hpp $*
+else
+    /usr/bin/g++ $*
+fi

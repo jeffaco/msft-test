@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ "$#" == "0" ]; then
+    echo "Usage: $0 sources${top}."
+    exit 1
+fi
+
+source /root/bin/common
+
+for i
+do 
+    g++ ${flags} -x c++-header -c $i
+done

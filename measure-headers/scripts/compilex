@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ "$#" != "1" ]; then
+    echo "Usage: $0 filename"
+    exit 1
+fi
+
+source /root/bin/common
+
+cp $1 compile.cpp
+rm -f compile.o
+g++ ${flags} ${syntax} -c compile.cpp -o compile.o 2> o
+if [ -f "compile.o" ]; then
+  echo -n "$1 "
+  size compile.o | grep -v text | awk '{ print $4 }'
+fi

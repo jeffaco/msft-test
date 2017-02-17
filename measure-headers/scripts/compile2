@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ "$#" == "0" ]; then
+    echo "Usage: $0 sources${top}."
+    exit 1
+fi
+
+source /root/bin/common
+
+for i
+do 
+    /usr/bin/time -f "%e" g++ -include all.hpp ${flags} -c $i -o compile.o
+done

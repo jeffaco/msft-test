@@ -1,0 +1,7 @@
+#!/bin/bash
+for i
+do
+    cp $i $i.sub
+    sed -f /tmp/sub.sed $i.sub > $i
+    rm -f $i.sub
+done

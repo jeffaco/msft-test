@@ -1,0 +1,7 @@
+# .gitignore file for header measurement tools
+
+cch/cch
+depstats/depstats
+mkpch/mkpch
+
+scripts/depstats

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ "$#" == "0" ]; then
+    echo "Usage: $0 sources${top}."
+    exit 1
+fi
+
+source /root/bin/common
+
+#syntax=-fsyntax-only
+errors=-fmax-errors=1
+
+for i
+do 
+    echo -n "$i "
+    echo "#include \"$i\"" > compile.cpp
+    /usr/bin/time -f "%e" g++ ${syntax} ${errors} ${flags} -c compile.cpp -o compile.o
+done
