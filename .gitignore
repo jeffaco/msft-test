@@ -1,3 +1,4 @@
 # Programs that can be compiled
 
 gethostbyname
+getifaddrs

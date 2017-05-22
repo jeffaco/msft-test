@@ -13,7 +13,7 @@
 
 int main()
 {
-    struct ifaddrs* ifaddr = nullptr;
+    struct ifaddrs* ifaddr = NULL; // nullptr;
     if (getifaddrs(&ifaddr) == -1) {
         std::cout << "Error: getifaddrs failed" << std::endl;
         return 1;
@@ -24,6 +24,7 @@ int main()
         if (ifa->ifa_name != NULL /* nullptr */) {
             std::cout << "Interface: " << ifa->ifa_name << std::endl;
         }
+        std::cout << "Netmask: " << ifa->ifa_netmask << std::endl;
     }
 
     freeifaddrs(ifaddr);
