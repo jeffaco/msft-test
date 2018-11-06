@@ -1,0 +1,9 @@
+[random-writers]
+ioengine=libaio
+iodepth=16
+rw=randwrite
+bs=32m
+direct=0
+size=1t
+numjobs=8
+; -- end job file --
