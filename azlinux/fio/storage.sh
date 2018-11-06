@@ -4,11 +4,11 @@ set -e
 
 COUNTER=0
 while [ $COUNTER -lt 500 ]; do
-	if [ -f fio.stop ]; then
-		echo "Stopping due to \"fio.stop\" marker file ..."
-		rm -f fio.stop
-		break
-	fi
+    if [ -f fio.stop ]; then
+        echo "Stopping due to \"fio.stop\" marker file ..."
+        rm -f fio.stop
+        break
+    fi
 
     let COUNTER=COUNTER+1
     echo "Running iteration $COUNTER ..."
